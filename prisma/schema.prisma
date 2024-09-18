@@ -1,0 +1,82 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider      = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
+}
+
+model Customer {
+    id        Int      @id @default(autoincrement())
+    email     String   @unique
+    name      String
+    address   String
+    city      String
+    zipCode   String
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    Order     Order[]
+}
+
+model User {
+    id        Int      @id @default(autoincrement())
+    email     String   @unique
+    password  String
+    isAdmin   Boolean  @default(true)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Order {
+    id          Int            @id @default(autoincrement())
+    userId      Int
+    customer    Customer       @relation(fields: [userId], references: [id])
+    orderNumber String         @unique
+    status      OrderStatus    @default(NEW)
+    products    OrderProduct[]
+    totalPrice  Float
+    createdAt   DateTime       @default(now())
+    updatedAt   DateTime       @updatedAt
+}
+model Product {
+    id                Int             @id @default(autoincrement())
+    name              String          @unique
+    description       String
+    imageSrc          String
+    stock             Int
+    category          ProductCategory
+    price             Float
+    usp               String[]
+    isPublished       Boolean         @default(true)
+    isTrending        Boolean         @default(false)
+    OrderProduct      OrderProduct[]
+    productDiscountId Int?
+    createdAt         DateTime        @default(now())
+    updatedAt         DateTime        @updatedAt
+}
+
+model OrderProduct {
+    id        Int      @id @default(autoincrement())
+    orderId   Int
+    order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    productId Int?
+    product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+    quantity  Int
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+enum ProductCategory {
+    PIZZA
+    KAPSALON
+    PASTA
+}
+
+enum OrderStatus {
+    NEW
+    PAID
+    SHIPPED
+    DELIVERED
+}
