@@ -1,4 +1,3 @@
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import { createSafeActionClient, DEFAULT_SERVER_ERROR_MESSAGE } from "next-safe-action";
 
@@ -38,7 +37,7 @@ export const actionClient = createSafeActionClient({
 
 export const adminActionClient = actionClient.use(async ({ next }) => {
 
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
 
     if (!session?.user.isAdmin) {
         throw new ActionError("You are not authorized to perform this action");

@@ -1,6 +1,6 @@
 "use server";
 
-import { actionClient } from "@/lib/safe.action";
+import { actionClient, adminActionClient } from "@/lib/safe.action";
 import { ProductCategory } from "@prisma/client";
 import { z } from "zod";
 
@@ -16,6 +16,5 @@ export const createProductSchema = z.object({
 export const createProduct = actionClient.schema(createProductSchema).action(async ({ parsedInput }) => {
     //TODO: PRISMA CLIENT QUERY
 });
-
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;

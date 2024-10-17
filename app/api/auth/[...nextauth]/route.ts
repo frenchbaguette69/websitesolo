@@ -1,43 +1,31 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
+import { registerUser } from "../../actions/user/post.action";
+import GoogleProvider from "next-auth/providers/google";
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
     providers: [
-        CredentialsProvider({
-            name: "Credentials",
-            credentials: {},
-            async authorize(cred: any) {
-                const client = new PrismaClient();
-
-                const user = await client.user.findUnique({
-                    where: {
-                        email: cred.email
-                    }
-                });
-
-                if (!user) {
-                    return null;
-                }
-
-                if (bcrypt.compareSync(cred.password, user.password)) {
-                    return {
-                        id: user.id.toString(),
-                        email: user.email,
-                        password: user.password,
-                        isAdmin: user.isAdmin,
-                        createdAt: user.createdAt,
-                        updatedAt: user.updatedAt
-                    };
-                }
-
-                return null;
-            }
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID || "",
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || ""
         })
     ],
     callbacks: {
+        async signIn({ user, account }) {
+            if (
+                (
+                    account?.provider === "google")
+            ) {
+                if (!user.email || !user.name) return false;
+                const registerData = await registerUser({
+                    email: user.email,
+                    name: user.name
+                });
+                if (registerData?.data) return true;
+                else return false;
+            }
+            return true;
+        },
         jwt: async ({ token, user }) => {
             const isSignedIn = !!user;
 
@@ -57,10 +45,6 @@ export const authOptions: NextAuthOptions = {
     }
 };
 
-export async function GET(request: Request) {
-    return NextAuth(authOptions)(request);
-}
+const handler = NextAuth(authOptions);
 
-export async function POST(request: Request) {
-    return NextAuth(authOptions)(request);
-}
+export { handler as GET, handler as POST }

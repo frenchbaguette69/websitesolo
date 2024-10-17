@@ -1,5 +1,5 @@
 {
-  "name": "web",
+  "name": "@easyeten/devpage",
   "version": "0.1.0",
   "private": true,
   "scripts": {
