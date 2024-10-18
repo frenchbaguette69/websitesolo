@@ -1,5 +1,7 @@
-import { getServerSession } from "next-auth";
 import { createSafeActionClient, DEFAULT_SERVER_ERROR_MESSAGE } from "next-safe-action";
+import { GraphQLClient } from "graphql-request";
+import { easyEtenSdk } from "@paradox/queries";
+import { getServerSession } from "next-auth";
 
 export class ActionError extends Error {};
 
@@ -30,9 +32,15 @@ export const actionClient = createSafeActionClient({
     return result;
 }).use(async ({ next }) => {
 
-    //pass generic context 
+    const queryClient = easyEtenSdk(
+        new GraphQLClient(
+          process.env.NODE_ENV === "production"
+            ? "http://qldb:4000/graphql"
+            : "http://localhost:4000/graphql"
+        )
+      );
 
-    return next({ ctx: { x: 0 } })
+    return next({ ctx: { queryClient } })
 });
 
 export const adminActionClient = actionClient.use(async ({ next }) => {
