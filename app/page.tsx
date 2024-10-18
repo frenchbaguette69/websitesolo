@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client"
 
 import { useState } from 'react'
@@ -47,6 +48,17 @@ const menuItems = {
     { name: "Tiramisu", description: "Classic Italian dessert", price: 6.50 },
     { name: "Gelato", description: "Assorted flavors", price: 4.50 },
   ],
+=======
+import { Hero } from "@/components/hero";
+import Image from "next/image";
+
+export default function Home() {
+  return (
+    <div>
+      <Hero />
+    </div>
+  );
+>>>>>>> 3a138713fd98d3959f12e4373721dd30e116dd8e
 }
 
 export default function Home() {
